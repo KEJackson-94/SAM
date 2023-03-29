@@ -1,6 +1,5 @@
 # SAM
 The following repository is an update to the original github published by Yao Goulin on SAM (https://github.com/yaoguolin/SustainableAgricultureMatrix)
-
 Additonally you can observe the following folder/file structure to better navigate the repository for your research needs.
 
 ~//SAM//
