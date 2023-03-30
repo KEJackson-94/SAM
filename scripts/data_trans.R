@@ -30,6 +30,7 @@ AGDP_ref <- read.csv(paste0(getwd(), path_ref_raw,'Raw_Labor_Productivity.csv'))
 # compare ref and raw values for Turkey (TUR)
 AGDP_ref <- AGDP_ref[which(AGDP_ref$ISO=='TUR'),]
 AGDP_ref <- melt(setDT(AGDP_ref), id.vars = c(), variable.name = "year")
+AGDP_ref$year <- substr(AGDP_ref$year, 2, length(AGDP_ref$year))
 
 
 #### Finance Access (A2F) ------------------------------------------------------
