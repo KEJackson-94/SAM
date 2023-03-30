@@ -1,50 +1,105 @@
+library(data.table) # melt()
+
+path_ref_raw <- '//data_reference//data_raw//'
+path_ref_score <- '//data_reference//data_score//'
+
+# 2021 Edition ################################################################# 
+
+#### Social INDICATORS #########################################################
+path_Soc_2021 <- '//data_archive//2021_ed/Soc//'
+
+#### Crop Diversity (H Index) --------------------------------------------------
+
+#### Food Affordability (RSE) --------------------------------------------------
+
+#### Under-nourishment (UDN) ---------------------------------------------------
+
+#### Gender Gap Score (GGG) ----------------------------------------------------
+
+#### Rural Poverty (RPV) -------------------------------------------------------
+
+#### Land Rights (LRS) ---------------------------------------------------------
+
+#### Economic INDICATORS #######################################################
+path_econ_2021 <- '//data_archive//2021_ed/Econ//'
+
+#### Labor Productivity (AGDP) -------------------------------------------------
+AGDP <- read.csv(paste0(getwd(),path_econ_2021,'AgValueAdded_Worker_WDI_20180918.csv')) # Ad value added per worker
+AGDP_ref <- read.csv(paste0(getwd(), path_ref_raw,'Raw_Labor_Productivity.csv'))
+
+# compare ref and raw values for Turkey (TUR)
+AGDP_ref <- AGDP_ref[which(AGDP_ref$ISO=='TUR'),]
+AGDP_ref <- melt(setDT(AGDP_ref), id.vars = c(), variable.name = "year")
 
 
-###########################
-#### Social INDICATORS ####
-###########################
+#### Finance Access (A2F) ------------------------------------------------------
 
-#### Crop Diversity (H Index)
+#### Price Volatility (PVOL) ---------------------------------------------------
 
-#### Food Affordability (RSE)
+#### Government Support (AEXP) -------------------------------------------------
 
-#### Under-nourishment (UDN)
+#### Trade Openness (TROP) -----------------------------------------------------
 
-#### Gender Gap Score (GGG)
+#### Food Loss (FLP) -----------------------------------------------------------
 
-#### Rural Poverty (RPV)
+#### Environmental INDICATORS ##################################################
+path_Env_2021 <- '//data_archive//2021_ed/Env//'
 
-#### Land Rights (LRS)
+#### Water Consumption (SUSI) --------------------------------------------------
+
+#### N Surplus (Nsur) ----------------------------------------------------------
+
+#### P Surplus (Psur) ----------------------------------------------------------
+
+#### Land Use Change (LUC) -----------------------------------------------------
+
+#### Greenhouse Gas Emmissions (GHG) -------------------------------------------
+
+#### Soil Erosion (SER) --------------------------------------------------------
 
 
-#############################
-#### Economic INDICATORS ####
-#############################
 
-#### Labor Productivity (AGDP)
 
-#### Finance Access (A2F)
+# 2023 Edition  ################################################################
 
-#### Price Volatility (PVOL)
+#### Social INDICATORS #########################################################
 
-#### Government Support (AEXP)
+#### Crop Diversity (H Index) --------------------------------------------------
 
-#### Trade Openness (TROP)
+#### Food Affordability (RSE) --------------------------------------------------
 
-#### Food Loss (FLP)
+#### Under-nourishment (UDN) ---------------------------------------------------
 
-##################################
-#### Environmental INDICATORS ####
-##################################
+#### Gender Gap Score (GGG) ----------------------------------------------------
 
-#### Water Consumption (SUSI)
+#### Rural Poverty (RPV) -------------------------------------------------------
 
-#### N Surplus (Nsur)
+#### Land Rights (LRS) ---------------------------------------------------------
 
-#### P Surplus (Psur)
+#### Economic INDICATORS #######################################################
 
-#### Land Use Change (LUC)
+#### Labor Productivity (AGDP) -------------------------------------------------
 
-#### Greenhouse Gas Emmissions (GHG)
+#### Finance Access (A2F) ------------------------------------------------------
 
-#### Soil Erosion (SER)
+#### Price Volatility (PVOL) ---------------------------------------------------
+
+#### Government Support (AEXP) -------------------------------------------------
+
+#### Trade Openness (TROP) -----------------------------------------------------
+
+#### Food Loss (FLP) -----------------------------------------------------------
+
+#### Environmental INDICATORS ##################################################
+
+#### Water Consumption (SUSI) --------------------------------------------------
+
+#### N Surplus (Nsur) ----------------------------------------------------------
+
+#### P Surplus (Psur) ----------------------------------------------------------
+
+#### Land Use Change (LUC) -----------------------------------------------------
+
+#### Greenhouse Gas Emmissions (GHG) -------------------------------------------
+
+#### Soil Erosion (SER) --------------------------------------------------------
