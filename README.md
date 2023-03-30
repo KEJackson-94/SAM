@@ -12,6 +12,7 @@ The following repository is an update to the original github published by Yao Go
 **data_score:** contains unbounded and bounded scores based on thresholds, and scores derived from normalization methods (SAM_score_normalization).
 
 **scripts:** folder containing R and python scripts named after the folders in which script outputs are sent.
+
 **data_reference:** this is a temporary folder containing data_raw and data_score files. Rewriting scripts in R and python will rquire that we attempt to replicate
 these results.
 
