@@ -36,6 +36,7 @@ NY.GDP.MKTP.PP.KD<-NY.GDP.MKTP.PP.KD[which(NY.GDP.MKTP.PP.KD$Country.Code=='TUR'
 NY.GDP.MKTP.PP.KD<-na.omit(melt(setDT(NY.GDP.MKTP.PP.KD),id.vars=c(),variable.name="year"))
 NY.GDP.MKTP.PP.KD$year<-as.integer(substr(NY.GDP.MKTP.PP.KD$year,2,length(NY.GDP.MKTP.PP.KD$year)))
 
+<<<<<<< HEAD
 ### Labor Productivity (AGDP) -------------------------------------------------
 AGDP<-read.csv(paste0(getwd(),path_econ_2021,'AgValueAdded_Worker_WDI_20180918.csv')) # Agriculture forestry and fishing value added per worker (constant 2010 US$)
 AGDP_ref<-read.csv(paste0(getwd(),path_ref_raw,'Raw_Labor_Productivity.csv'))
@@ -67,6 +68,12 @@ write.csv(AGDP,paste0(getwd(),path_raw_2021,'ADGP_raw.csv'))
 
 ### Government Support (AEXP) -------------------------------------------------
 AEXP_ref<-read.csv(paste0(getwd(),path_ref_raw,'Raw_Government_Support.csv'))
+=======
+# compare ref and raw values for Turkey (TUR)
+AGDP_ref <- AGDP_ref[which(AGDP_ref$ISO=='TUR'),]
+AGDP_ref <- melt(setDT(AGDP_ref), id.vars = c(), variable.name = "year")
+AGDP_ref$year <- substr(AGDP_ref$year, 2, length(AGDP_ref$year))
+>>>>>>> 6ecf7ae253cd01e2269b42cc6071e5b9ca8410b7
 
 
 AGDP_capita<-read.csv(paste0(getwd(),path_econ_2021,'AgValueAdded_Worker_WDI_20180918.csv')) # Agriculture forestry and fishing value added per worker (constant 2010 US$)
