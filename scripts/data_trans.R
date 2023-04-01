@@ -1,5 +1,7 @@
 library(data.table) # melt()
 library(ggplot2) # ggplot()
+library(countrycode)
+library(tidyr) # complete()
 
 path_ref_raw <- '//data_reference//data_raw//'
 path_ref_score <- '//data_reference//data_score//'
@@ -142,14 +144,64 @@ write.csv(FLP,paste0(getwd(),path_raw_2021,'FLP_raw.csv'))
 path_Env_2021 <- '//data_archive//2021_ed/Env//'
 
 ### Water Consumption (SUSI) --------------------------------------------------
+TS_km3 <- read.csv(paste0(getwd(),path_Env_2021,'TS_km3.csv')) #	TS_km3: water considered sustainable for agricultural use for year 2000 
+TI_km3_2015 <- read.csv(paste0(getwd(),path_Env_2021,'TI_km3_2015.csv'))# TOTAL Irrigation for all 26 CROPS for year 2015
+TI_km3_2000 <- read.csv(paste0(getwd(),path_Env_2021,'TI_km3_2000.csv')) # TOTAL Irrigation for all 26 CROPS for year 2000
+AEI <- read.csv(paste0(getwd(),path_Env_2021,'FAOSTAT_data_9-10-2019_AEI.csv'))# FAOSTAT_data_9-10-2019_AEI: Area equipped for irrigation. 
+AEI <- subset(AEI,select=c("Area","Year","Unit","Value"))
 
 ### N Surplus (Nsur) ----------------------------------------------------------
 
 ### P Surplus (Psur) ----------------------------------------------------------
 
 ### Land Use Change (LUC) -----------------------------------------------------
+LCC_archive<-read.csv(paste0(getwd(),path_Env_2021,'LCC.csv'))
+LCC_ref<-read.csv(paste0(getwd(),path_ref_raw,'Raw_Land_Use_Change.csv'))
 
-### Greenhouse Gas Emmissions (GHG) -------------------------------------------
+LCC_CD<-LCC_archive[which(LCC_archive$Drivers=="Commodity-Driven Deforestation"),]
+LCC_CD<-na.omit(melt(setDT(LCC_CD),id.vars=c("ISO","Drivers"),variable.name="year"))
+LCC_CD$year<-as.integer(substr(LCC_CD$year,2,length(LCC_CD$year)))
+setnames(LCC_CD,old=colnames(LCC_CD),new=c("ISO","Drivers","year","CD"))
+LCC_CD<-subset(LCC_CD,select=c(ISO,year,CD))
+
+LCC_SA<-LCC_archive[which(LCC_archive$Drivers=="Shifting Agriculture"),]
+LCC_SA<-na.omit(melt(setDT(LCC_SA),id.vars=c("ISO","Drivers"),variable.name="year"))
+LCC_SA$year<-as.integer(substr(LCC_SA$year,2,length(LCC_SA$year)))
+setnames(LCC_SA,old=colnames(LCC_SA),new=c("ISO","Drivers","year","SA"))
+LCC_SA<-subset(LCC_SA,select=c(ISO,year,SA))
+LCC_SA_CD<-merge(LCC_SA,LCC_CD,by=c('ISO','year'),all=TRUE)
+
+AEI<-read.csv(paste0(getwd(),path_Env_2021,'FAOSTAT_data_9-10-2019_AEI.csv'))# FAOSTAT_data_9-10-2019_AEI: Area equipped for irrigation. 
+AEI<-subset(AEI,select=c("Area","Year","Unit","Value"))
+setnames(AEI,old=colnames(AEI),new=c("Country_Name","year","unit","AEI"))
+AEI$ISO<-countrycode(AEI$Country_Name, origin='country.name',destination='iso3c',warn =TRUE,nomatch =NA)
+AEI<-subset(AEI,select=c(ISO,year,AEI))
+AEI$AEI<-AEI$AEI*1000 # units are in 1000ha so convert to ha
+
+LCC<-merge(x=AEI,y=LCC_SA_CD,by=c('ISO','year'),all = TRUE)
+#LCC$SA_CD<-sum(LCC$CD,LCC$SA,na.rm=TRUE)
+LCC$value<-rowSums(LCC[,c("SA", "CD")], na.rm=TRUE)/LCC$AEI
+LCC[which(LCC$ISO=='TUR'),]
+LCC<-subset(LCC,select=c(ISO,year,value))
+
+LCC_raw<-LCC[which(LCC$ISO=='TUR'),]
+LCC_raw$type<-'raw'
+LCC_ref<-LCC_ref[which(LCC_ref$ISO=='TUR'),] # ref values for Turkey (TUR)
+LCC_ref<-na.omit(melt(setDT(LCC_ref),id.vars=c(),variable.name="year"))
+LCC_ref$year<-as.integer(substr(LCC_ref$year,2,length(LCC_ref$year)))
+LCC_ref$type<-'ref'
+LCC_ref<-subset(LCC_ref,select=-c(Country_Name))
+
+LCC_comp<-rbind(LCC_raw,LCC_ref) # compare ref and raw values for Turkey (TUR)
+LCC_comp$value<-replace(LCC_comp$value,LCC_comp$value==0,NA)
+LCC_comp<-na.omit(LCC_comp)
+ggplot(LCC_comp,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="LCC") + theme_classic()
+
+LCC$Indicator <- 'LCC'
+LCC<-reshape(LCC,idvar=c("ISO","Indicator"),timevar ="year",direction ="wide")
+write.csv(LCC,paste0(getwd(),path_raw_2021,'LCC_raw.csv'))
+
+### Greenhouse Gas Emissions (GHG) -------------------------------------------
 
 ### Soil Erosion (SER) --------------------------------------------------------
 
