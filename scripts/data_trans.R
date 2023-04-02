@@ -2,6 +2,9 @@ library(data.table) # melt()
 library(ggplot2) # ggplot()
 library(countrycode)
 library(tidyr) # complete()
+library(zoo) # na.approx()
+library(dplyr)
+library(imputeTS)
 
 path_ref_raw <- '//data_reference//data_raw//'
 path_ref_score <- '//data_reference//data_score//'
@@ -86,7 +89,7 @@ AGDP$year<-as.integer(substr(AGDP$year,2,length(AGDP$year)))
 setnames(AGDP,old=colnames(AGDP),new=c("Country_Name","ISO","Series.name","Series.code",'year',"AGDP"))
 AGDP<-subset(AGDP,select=c(ISO,year,AGDP))
 
-Ag_Pop<-merge(AGDP, AGDP_capita, by=c('ISO','year'), all.x=TRUE)
+Ag_Pop<-merge(AGDP, AGDP_capita, by=c('ISO','year'),all.x=TRUE)
 Ag_Pop$Ag_Pop <- Ag_Pop$AGDP/Ag_Pop$AGDP_capita
 
 Ag_Exp<-read.csv(paste0(getwd(),path_econ_2021,'Ag_Exp_IFPRI_1980_2012.csv')) # try dividing by number of ag workers
@@ -94,7 +97,7 @@ Ag_Exp<-na.omit(melt(setDT(Ag_Exp),id.vars=c("country","ISO","FAOCODE","Unit"),v
 Ag_Exp$year<-as.integer(substr(Ag_Exp$year,2,length(Ag_Exp$year)))
 setnames(Ag_Exp,old=colnames(Ag_Exp),new=c("Country_Name","ISO","FAOCODE","unit",'year',"Ag_Exp"))
 Ag_Exp<-subset(Ag_Exp,select=c(ISO,year,Ag_Exp))
-AEXP <- merge(Ag_Pop, Ag_Exp, by=c('ISO','year'), all.x=TRUE)
+AEXP <- merge(Ag_Pop, Ag_Exp, by=c('ISO','year'),all.x=TRUE)
 AEXP$value <- AEXP$Ag_Exp*1E9/AEXP$Ag_Pop
 AEXP<-subset(AEXP,select=c(ISO,year,value))
 
@@ -144,11 +147,86 @@ write.csv(FLP,paste0(getwd(),path_raw_2021,'FLP_raw.csv'))
 path_Env_2021 <- '//data_archive//2021_ed/Env//'
 
 ### Water Consumption (SUSI) --------------------------------------------------
-TS_km3 <- read.csv(paste0(getwd(),path_Env_2021,'TS_km3.csv')) #	TS_km3: water considered sustainable for agricultural use for year 2000 
-TI_km3_2015 <- read.csv(paste0(getwd(),path_Env_2021,'TI_km3_2015.csv'))# TOTAL Irrigation for all 26 CROPS for year 2015
-TI_km3_2000 <- read.csv(paste0(getwd(),path_Env_2021,'TI_km3_2000.csv')) # TOTAL Irrigation for all 26 CROPS for year 2000
-AEI <- read.csv(paste0(getwd(),path_Env_2021,'FAOSTAT_data_9-10-2019_AEI.csv'))# FAOSTAT_data_9-10-2019_AEI: Area equipped for irrigation. 
-AEI <- subset(AEI,select=c("Area","Year","Unit","Value"))
+SUSI_ref<-read.csv(paste0(getwd(),path_ref_raw,'Raw_Water_Consumption.csv'))
+
+TS_km3<-read.csv(paste0(getwd(),path_Env_2021,'TS_km3.csv')) #	TS_km3: water considered sustainable for agricultural use for year 2000 
+setnames(TS_km3,old=colnames(TS_km3),new=c("Country.Name","TS"))
+TI_km3_2015<-read.csv(paste0(getwd(),path_Env_2021,'TI_km3_2015.csv'))# TOTAL Irrigation for all 26 CROPS for year 2015
+TI_km3_2015$year<-2015
+setnames(TI_km3_2015,old=colnames(TI_km3_2015),new=c("Country.Name","TI","year"))
+TI_km3_2000<-read.csv(paste0(getwd(),path_Env_2021,'TI_km3_2000.csv')) # TOTAL Irrigation for all 26 CROPS for year 2000
+TI_km3_2000$year<-2000
+setnames(TI_km3_2000,old=colnames(TI_km3_2000),new=c("Country.Name","TI","year"))
+TI<-rbind(TI_km3_2000,TI_km3_2015)
+
+AEI<-read.csv(paste0(getwd(),path_Env_2021,'FAOSTAT_data_9-10-2019_AEI.csv'))# FAOSTAT_data_9-10-2019_AEI: Area equipped for irrigation. 
+AEI<-subset(AEI,select=c("Area","Year","Unit","Value"))
+setnames(AEI,old=colnames(AEI),new=c("Country.Name","year","unit","AEI"))
+AEI$AEI<-AEI$AEI*1000
+AEI<-subset(AEI,select=-c(unit))
+AEI<-AEI[which(AEI$year>1989&AEI$year<2017),]
+
+SUSI<-merge(AEI,TI,by=c('Country.Name','year'),all.x=TRUE)
+SUSI$TIR<-SUSI$TI/SUSI$AEI
+
+
+ISO<-unique(SUSI$Country.Name)
+datalist = list()
+x<-0
+for(i in 1:length(ISO)){
+  m<-data.frame(matrix(0,ncol=2,nrow=27)
+  colnames(m)<-c('ISO','year')
+  m$ISO<-ISO[i]
+  m$year<-1990:2016
+  datalist[[i]]<-df
+}
+ISO_df = do.call(rbind, datalist)
+
+ISO<-unique(SUSI$Country.Name)
+datalist = list()
+x<-0
+for(i in 1:length(ISO)){
+  df<-SUSI[which(SUSI$Country.Name==ISO[i]),]
+  if(df$year<2000&!is.na(df[which(df$year==2000),]$TIR)){
+    df$TIR <- df[which(df$year=='2000'),]$TIR
+  }
+  if(nrow(df)!=27){
+    print(ISO[i])
+    x<-x+1
+  }
+  if(is.na(df$TIR)){
+    df$TIR_new<-NA
+  }
+  else{
+    df$TIR_new<-na.spline(df$TIR)
+  }
+  datalist[[i]]<-df
+}
+SUSI = do.call(rbind, datalist)
+
+
+SUSI<-merge(SUSI,TS_km3,by=c('Country.Name'))
+SUSI$TI_new<-SUSI$TIR_new*SUSI$AEI
+SUSI$value<-SUSI$TI_new/SUSI$TS
+SUSI$ISO<-countrycode(SUSI$Country.Name, origin='country.name',destination='iso3c',warn =TRUE,nomatch =NA)
+
+SUSI<-subset(SUSI,select=c(ISO,year,value))
+SUSI_raw<-SUSI[which(SUSI$ISO=='TUR'),] # raw values for Turkey (TUR)
+SUSI_raw$type<-'raw'
+
+SUSI_ref<-SUSI_ref[which(SUSI_ref$ISO=='TUR'),] # ref values for Turkey (TUR)
+SUSI_ref<-na.omit(melt(setDT(SUSI_ref),id.vars=c(),variable.name="year"))
+SUSI_ref$year<-as.integer(substr(SUSI_ref$year,2,length(SUSI_ref$year)))
+SUSI_ref$type<-'ref'
+SUSI_ref<-subset(SUSI_ref,select=-c(Country_Name))
+
+SUSI_comp<-rbind(SUSI_raw,SUSI_ref) # compare ref and raw values for Turkey (TUR)
+ggplot(SUSI_comp,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="SUSI") + theme_classic()
+ggplot(SUSI_raw,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="SUSI") + theme_classic()
+
+SUSI$Indicator <- 'SUSI'
+SUSI<-reshape(SUSI,idvar=c("ISO","Indicator"),timevar ="year",direction ="wide")
+write.csv(SUSI,paste0(getwd(),path_raw_2021,'SUSI_raw.csv'))
 
 ### N Surplus (Nsur) ----------------------------------------------------------
 
