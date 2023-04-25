@@ -53,12 +53,12 @@ AGDP_ref<-subset(AGDP_ref,select=-c(Country_Name))
 AGDP_comp<-rbind(AGDP_raw,AGDP_ref) # compare ref and raw values for Turkey (TUR)
 AGDP_comp$year <- as.integer(AGDP_comp$year)
 pp<-ggplot(AGDP_comp,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="AGDP") + theme_classic()
-ggsave('AGDP.png', pp)
+ggsave('C://SAM_tst//AGDP.png', pp)
 dev.off()
 
 AGDP$Indicator <- 'AGDP'
 AGDP<-reshape(AGDP,idvar=c("ISO","Indicator"),timevar ="year",direction ="wide")
-write.csv(AGDP,paste0(getwd(),path_raw_2021,'ADGP_raw.csv'))
+#write.csv(AGDP,paste0(getwd(),path_raw_2021,'ADGP_raw.csv'))
 
 ### Finance Access (A2F) ------------------------------------------------------
 
@@ -102,12 +102,12 @@ AEXP_ref<-subset(AEXP_ref,select=-c(Country_Name))
 
 AEXP_comp<-rbind(AEXP_raw,AEXP_ref) # compare ref and raw values for Turkey (TUR)
 pp<-ggplot(AEXP_comp,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="AEXP") + theme_classic()
-ggsave('AEXP.png', pp)
+ggsave('C://SAM_tst//AEXP.png', pp)
 dev.off()
 
 AEXP$Indicator <- 'AEXP'
 AEXP<-reshape(AEXP,idvar=c("ISO","Indicator"),timevar ="year",direction ="wide")
-write.csv(AEXP,paste0(getwd(),path_raw_2021,'AEXP_raw.csv'))
+#write.csv(AEXP,paste0(getwd(),path_raw_2021,'AEXP_raw.csv'))
 
 ### Trade Openness (TROP) -----------------------------------------------------
 
@@ -130,12 +130,12 @@ FLP_ref<-subset(FLP_ref,select=-c(Country_Name))
 
 FLP_comp<-rbind(FLP_raw,FLP_ref) # compare ref and raw values for Turkey (TUR)
 pp<-ggplot(FLP_comp,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="FLP") + theme_classic()
-ggsave('FLP.png', pp)
+ggsave('C://SAM_tst//FLP.png', pp)
 dev.off()
 
 FLP$Indicator <- 'FLP'
 FLP<-reshape(FLP,idvar=c("ISO","Indicator"),timevar ="year",direction ="wide")
-write.csv(FLP,paste0(getwd(),path_raw_2021,'FLP_raw.csv'))
+#write.csv(FLP,paste0(getwd(),path_raw_2021,'FLP_raw.csv'))
 
 #### Environmental INDICATORS ##################################################
 path_Env_2021 <- '//data_archive//2021_ed/Env//'
@@ -212,12 +212,12 @@ SUSI_ref<-subset(SUSI_ref,select=-c(Country_Name))
 
 SUSI_comp<-rbind(SUSI_raw,SUSI_ref) # compare ref and raw values for Turkey (TUR)
 pp<-ggplot(SUSI_comp,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="SUSI") + theme_classic()
-ggsave('SUSI.png', pp)
+ggsave('C://SAM_tst//SUSI.png', pp)
 dev.off()
 
 SUSI$Indicator <- 'SUSI'
 SUSI<-reshape(SUSI,idvar=c("ISO","Indicator"),timevar ="year",direction ="wide")
-write.csv(SUSI,paste0(getwd(),path_raw_2021,'SUSI_raw.csv'))
+#write.csv(SUSI,paste0(getwd(),path_raw_2021,'SUSI_raw.csv'))
 
 ### N Surplus (Nsur) ----------------------------------------------------------
 
@@ -262,7 +262,7 @@ LCC_ref<-subset(LCC_ref,select=-c(Country_Name))
 LCC_comp<-rbind(LCC_raw,LCC_ref) # compare ref and raw values for Turkey (TUR)
 LCC_comp$value<-replace(LCC_comp$value,LCC_comp$value==0,NA)
 pp<-ggplot(LCC_comp,aes(x=year,y=value,colour=type)) + geom_line() + labs(title="LCC") + theme_classic()
-ggsave('LCC.png', pp)
+ggsave('C://SAM_tst//LCC.png', pp)
 dev.off()
 
 ##### 2023 Edition  ################################################################
