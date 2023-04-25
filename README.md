@@ -7,9 +7,7 @@ The following repository is an update to the original github published by Yao Go
 
 **data_raw:** contains raw data (i.e., not yet transformed for monotonicity) for environmental, economic, and social dimensions. We maintain folders for archived data from previous years/editions of SAM for recorded keeping purposes and to identify any discrepencies or changes made to the data from their original sources.
 
-**data_trans:** contains transformed data based on raw data values so that larger values indicate higher sustainability.
-
-**data_score:** contains unbounded and bounded scores based on thresholds, and scores derived from normalization methods (SAM_score_normalization).
+**data_trans_score:** contains transformed data based on raw data values so that larger values indicate higher sustainability. Scores are then derived from normalization methods (SAM_score_normalization).
 
 **scripts:** folder containing R and python scripts named after the folders in which script outputs are sent.
 
@@ -49,8 +47,7 @@ Additonally you can observe the following folder/file structure to better naviga
     - //2023_ed//
   - **//scripts//**
     - *data_raw.R*
-    - *data_score.R*
-    - *data_trans.R*
+    - *data_trans_score.R*
     - *data_products.R*
   - **//data_products//**
     - //2021_ed//
